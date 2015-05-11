@@ -1,3 +1,5 @@
+var JSONMapping=require("./bower_components/json-mapping/json-mapping.js");
+
 var JSONPatch;
 
 (function(JSONPatch){
@@ -454,23 +456,193 @@ var JSONPatch;
       return transformedOperation;
    };
 
+
+   JSONPatch.isEmptyPatch=function(patch){
+
+      var isEmptyPatch=(!patch || (patch.constructor===Array && patch.length===0) || JSON.stringify(patch)==="{}");
+
+      return isEmptyPatch;
+   };
+
+   /**
+    * isValidMergePatch
+    * Returns true if the given patch is a valid merge patch.
+    * A merge patch should be an object or an array whose values
+    * are not objects that contain the "op" key, which would designate
+    * a regular patch.
+    */
+   JSONPatch.isValidMergePatch=function(patch){
+
+      var isMergePatch=false;
+
+      if(patch && typeof(patch)==="object")
+      {
+         if(patch.constructor===Array)
+         {
+            if(patch.length>0)
+            {
+               isMergePatch=!("operation" in patch[0]);
+            }
+            else
+            {
+               isMergePatch=true; // it's valid...
+            }
+         }
+         else
+         {
+            isMergePatch=true;
+         }
+      }
+
+      return isMergePatch;
+   };
+
+   /**
+    * translateToMapping
+    * Returns a new patch translated to the form of the given mapping
+    * @param {Mixed} patch The patch to be translated
+    * @param {Object} mapping The mapping to be used during translation
+    * @return {Mixed} The translated patch
+    */
+   JSONPatch.translateToMapping=function(patch, mapping){
+
+      var translated;
+
+      if(!JSONPatch.isEmptyPatch(patch))
+      {
+         if(JSONPatch.isValidMergePatch(patch))
+         {
+            translated={};
+
+            // NOTE: this isn't a comprehensive for all the capabilities of the merge patch spec, but it works for our purposes
+
+            for(var sourceEntityName in patch)
+            {
+               var sourceEntityPatch=patch[sourceEntityName];
+               var destinationEntityName=sourceEntityName;
+
+               translated[sourceEntityName]=[];
+
+               for(var i=0, l=sourceEntityPatch.length; i<l; i++)
+               {
+                  var sourceNode=sourceEntityPatch[i];
+
+                  translated[sourceEntityName][i]=JSONMapping.toEntityMapping(mapping[sourceEntityName], sourceNode);
+
+                  // var destinationNode=(translated[sourceEntityName][i]={});
+                  //
+                  // for(var sourcePropertyKey in sourceNode)
+                  // {
+                  //    var destinationPropertyKey=store.mapStoreKeyToEntityKey(sourceEntityName, sourcePropertyKey);
+                  //    var destinationPropertyKey
+                  //
+                  //    console.log("source property key for " + sourceEntityName + "." + sourcePropertyKey + ": ", destinationPropertyKey);
+                  //
+                  //    // translated[ObjectType][num]=sourceNode[sourcePropertyKey];
+                  //    destinationNode[destinationPropertyKey]=sourceNode[sourcePropertyKey];
+                  // }
+               }
+            }
+         }
+         else
+         {
+            console.log("is patch");
+
+            var sID=store.identifier,
+                p,
+                t,
+                keys,
+                key, value;
+
+            translated=[];
+
+            for(var i=0, l=patch.length, op; i<l, (op=patch[i]); i++)
+            {
+               //console.log(p);
+
+               t={"operation":op.operation,
+                  "entityName":op.object.getID().entity.name}; // FIXME: need to use the key and entity mapping to explain the operations to the store
+
+               if(op.operation!==0) // creates don't get object ids...
+               {
+                  t.nodeID=op.object.getID().reference;
+               }
+
+               if("keys" in op)
+               {
+                  keys=op.keys;
+                  values=op.values;
+               }
+               else if("key" in op)
+               {
+                  keys=[op.key];
+                  values=[op.value];
+               }
+
+               if(keys)
+               {
+                  // kvps
+                  t.keys=[];
+                  t.values=[];
+                  //t.data={};
+
+                  for(var j=0, n=keys.length; j<n; j++)
+                  {
+                     key=keys[j];
+                     value=values[j];
+
+                     // console.log("working on: ", key);
+
+                     p=HRManagedObjectModel.getPropertyWithName(op.object.entity, key);
+
+                     t.keys.push(key);
+                     t.values.push(this._flattenValueForProperty(value, p));
+                     //t.data[key]=value;
+                  }
+               }
+
+               translated.push(t);
+            }
+         }
+      }
+      else
+      {
+         translated=patch; // just return what we received
+      }
+
+      return translated;
+   };
+
+   /**
+    * translateFromMapping
+    * Returns a new patch translated from the form of the given mapping
+    * @param {Mixed} patch The patch to be translated
+    * @param {Object} mapping The mapping to be used during translation
+    * @return {Mixed} The translated patch
+    */
+   JSONPatch.translateFromMapping=function(patch, mapping){
+
+      var inverseMapping=JSONMapping.inverseSchemaMapping(mapping);
+      var translated=JSONPatch.translateToMapping(patch, inverseMapping);
+
+      return translated;
+   };
+
 })(JSONPatch || (JSONPatch = {}));
-
-
 
 (typeof(module)!=="undefined" ? (module.exports=JSONPatch) : (window.JSONPatch=JSONPatch));
 
 
-var deleteOperation={
-   op: "delete",
-   path: "/Node/1234"
-};
+// var deleteOperation={
+//    op: "delete",
+//    path: "/Node/1234"
+// };
+//
+// var updateOperation={
+//    op: "replace",
+//    path: "/Node/1234/title",
+//    value: "test"
+// };
 
-var updateOperation={
-   op: "replace",
-   path: "/Node/1234/title",
-   value: "test"
-};
-
-console.log("ab: ", JSONPatch.getOperationTransformedByOperation(deleteOperation, updateOperation));
-console.log("ba: ", JSONPatch.getOperationTransformedByOperation(updateOperation, deleteOperation));
+// console.log("ab: ", JSONPatch.getOperationTransformedByOperation(deleteOperation, updateOperation));
+// console.log("ba: ", JSONPatch.getOperationTransformedByOperation(updateOperation, deleteOperation));

@@ -1,0 +1,37 @@
+{
+  "name": "json-mapping",
+  "main": "json-mapping.js",
+  "authors": [
+    "Collin Brewer <collinbrewer@me.com>"
+  ],
+  "description": "A utility for rewiring an object to another format.",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "json",
+    "path",
+    "map",
+    "rewire"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "fc308a9549",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "fc308a9549eb854412ca3dff45aeea126a5c9d29"
+  },
+  "_source": "https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git",
+  "_target": "*",
+  "_originalSource": "https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git"
+}

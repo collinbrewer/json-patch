@@ -226,6 +226,52 @@ describe("Rebasing", function(){
 
 });
 
+describe("Translating", function(){
+
+   var patch=[
+      {"op":"add", "path":"/Todo", "value":{}},                // {foo:{bar:{}}}
+      {"op":"replace", "path":"/Todo/title", "value":"test"},    // {foo:{bar:{qux:"asdf"}}}
+      {"op":"delete", "path":"/Todo"}, // {foo:{bar:{qux:"asdf", mux:"asdf"}}}
+   ];
+
+   var mergePatch={
+      Todo:[
+         {
+            "id": 1,
+            "title": "test"
+         }
+      ]
+   };
+
+   var propertyMapping1={"sourceName":"id", "destinationName":"ID"};
+   var propertyMapping2={"sourceName":"title", "destinationName":"Title"};
+   var entityMapping={"sourceName":"Todo", "destinationName":"Todo", propertyMappings:[propertyMapping1, propertyMapping2]};
+   var schemaMapping={entityMappings:[entityMapping]}; // later indexed by the name of the entity mapping, which is autocreated as sourceName2destinationName
+
+   var mapping={
+      Todo:{
+         "id": "ID",
+         "title": "Title"
+      }
+   };
+
+   var mapped=JSONPatch.translateToMapping(mergePatch, mapping);
+
+   mochi("ID key", ("ID" in mapped.Todo[0]), "===", true);
+
+   mochi("id dne", ("id" in mapped.Todo[0]), "===", false);
+
+   mochi("ID value", mapped.Todo[0].ID, "===", 1);
+
+   var unmapped=JSONPatch.translateFromMapping(mapped, mapping);
+
+   mochi("ID key", ("ID" in unmapped.Todo[0]), "!==", true);
+
+   mochi("id dne", ("id" in unmapped.Todo[0]), "!==", false);
+
+   mochi("ID value", unmapped.Todo[0].ID, "!==", 1);
+});
+
 // global || window.mochaPhantomJS ? mochaPhantomJS.run() : mocha.run();
 
 // mocha.run();

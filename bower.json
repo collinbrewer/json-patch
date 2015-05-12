@@ -27,7 +27,5 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "json-mapping": "https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git"
-  }
+  "dependencies": {}
 }

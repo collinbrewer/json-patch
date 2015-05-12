@@ -1,8 +1,6 @@
-var JSONMapping=require("./bower_components/json-mapping/json-mapping.js");
+(function(){
 
-var JSONPatch;
-
-(function(JSONPatch){
+   var JSONPatch={};
 
    // Utility
    var isArray=Array.isArray || function (obj){
@@ -628,21 +626,6 @@ var JSONPatch;
       return translated;
    };
 
-})(JSONPatch || (JSONPatch = {}));
-
-(typeof(module)!=="undefined" ? (module.exports=JSONPatch) : (window.JSONPatch=JSONPatch));
-
-
-// var deleteOperation={
-//    op: "delete",
-//    path: "/Node/1234"
-// };
-//
-// var updateOperation={
-//    op: "replace",
-//    path: "/Node/1234/title",
-//    value: "test"
-// };
-
-// console.log("ab: ", JSONPatch.getOperationTransformedByOperation(deleteOperation, updateOperation));
-// console.log("ba: ", JSONPatch.getOperationTransformedByOperation(updateOperation, deleteOperation));
+   // export
+   (typeof(module)!=="undefined" ? (module.exports=JSONPatch) : ((typeof(define)!=="undefined" && define.amd) ? define(function(){ return JSONPatch; }) : (window.JSONPatch=JSONPatch)));
+})();

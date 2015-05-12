@@ -25,11 +25,12 @@
     "test",
     "tests"
   ],
-  "_release": "fc308a9549",
+  "dependencies": {},
+  "_release": "cbc1154cd7",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "fc308a9549eb854412ca3dff45aeea126a5c9d29"
+    "commit": "cbc1154cd7112df0e27651c9182dd62f3c22a162"
   },
   "_source": "https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git",
   "_target": "*",

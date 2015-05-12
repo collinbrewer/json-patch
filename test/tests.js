@@ -42,9 +42,10 @@ mochi.assert=function(title, a, comparator, b){
 };
 
 
-define(["../jsonpatch"], function(JSONPatch){
+define(["./bower_components/json-mapping/json-mapping", "../jsonpatch"], function(JSONMapping, JSONPatch){
 
-   console.log("loaded jsonpatch: ", JSONPatch);
+   console.log("jsonmapping: ", JSONMapping);
+   console.log("jsonpatch: ", JSONPatch);
 
    describe("#patch", function(){
 
@@ -258,7 +259,7 @@ define(["../jsonpatch"], function(JSONPatch){
       };
 
       var mapped=JSONPatch.translateToMapping(mergePatch, mapping);
-      
+
       mochi("ID key", ("ID" in mapped.Todo[0]), "===", true);
 
       mochi("id dne", ("id" in mapped.Todo[0]), "===", false);

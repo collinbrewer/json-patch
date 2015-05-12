@@ -495,6 +495,29 @@
       return isMergePatch;
    };
 
+   var _mergeMappingsByKey=function(wildcardMapping, primaryMapping){
+
+      var mapping={};
+
+      if(wildcardMapping)
+      {
+         for(var key in wildcardMapping)
+         {
+            mapping[key]=wildcardMapping[key];
+         }
+      }
+
+      if(primaryMapping)
+      {
+         for(var key in primaryMapping)
+         {
+            mapping[key]=primaryMapping[key];
+         }
+      }
+
+      return mapping;
+   };
+
    /**
     * translateToMapping
     * Returns a new patch translated to the form of the given mapping
@@ -512,12 +535,15 @@
          {
             translated={};
 
-            // NOTE: this isn't a comprehensive for all the capabilities of the merge patch spec, but it works for our purposes
+            var wildcardEntityMapping=mapping["*"];
+
+            // NOTE: this isn't comprehensive for all the capabilities of the merge patch spec, but it works for our purposes
 
             for(var sourceEntityName in patch)
             {
                var sourceEntityPatch=patch[sourceEntityName];
                var destinationEntityName=sourceEntityName;
+               var entityMapping=_mergeMappingsByKey(wildcardEntityMapping, mapping[sourceEntityName]);
 
                translated[sourceEntityName]=[];
 
@@ -525,7 +551,7 @@
                {
                   var sourceNode=sourceEntityPatch[i];
 
-                  translated[sourceEntityName][i]=JSONMapping.toEntityMapping(mapping[sourceEntityName], sourceNode);
+                  translated[sourceEntityName][i]=JSONMapping.toEntityMapping(entityMapping, sourceNode);
 
                   // var destinationNode=(translated[sourceEntityName][i]={});
                   //

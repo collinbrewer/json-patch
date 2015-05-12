@@ -57,14 +57,17 @@
    */
    JSONMapping.toEntityMapping=function(entityMapping, object){
 
-      var mapped={};
+      var mappedObject={};
+      var mappedKey;
 
       for(var key in object)
       {
-         mapped[entityMapping[key]]=object[key];
+         mappedKey=entityMapping[key];
+
+         mappedObject[(mappedKey===undefined ? key : mappedKey)]=object[key];
       }
 
-      return mapped;
+      return mappedObject;
    };
 
    /**

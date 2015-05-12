@@ -252,8 +252,10 @@ define(["./bower_components/json-mapping/json-mapping", "../jsonpatch"], functio
       var schemaMapping={entityMappings:[entityMapping]}; // later indexed by the name of the entity mapping, which is autocreated as sourceName2destinationName
 
       var mapping={
-         Todo:{
+         "*": {
             "id": "ID",
+         },
+         "Todo":{
             "title": "Title"
          }
       };

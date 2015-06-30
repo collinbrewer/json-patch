@@ -82,20 +82,34 @@
         _get: objOps._get
     };
 
-   function patch(patch, doc){
+   function ensure(doc, keys)
+   {
+      var key;
+      var nextKey;
+      var isNumericKey;
 
-      if(isArray(doc))
+      for(var i=0, l=keys.length-1; i<l; i++)
       {
+         key=keys[i];
 
+         if(key!=="")
+         {
+            isNumericKey=!isNaN(key);
+
+            if(isNumericKey)
+            {
+               key=parseInt(key, 10);
+            }
+
+            if(!doc[key])
+            {
+               nextKey=keys[i+1];
+
+               doc[key]=(isNaN(nextKey) ? {} : []);
+            }
+         }
       }
-
-   };
-
-   function unpatch(patch, doc){
-
-   };
-
-
+   }
 
    /**
     * Applies the given patch to the given value
@@ -103,9 +117,11 @@
     * @param {Mixed} value The value to be patched
     * @return {Object} An RFC6902 compliant JSON patch
     */
-   function apply(patches, tree){
+   function apply(patches, tree, options){
 
       var result = false, p = 0, plen = patches.length, patch;
+
+      var force=options && options.force;
 
       while (p < plen)
       {
@@ -119,6 +135,20 @@
 
          while (true)
          {
+            if(force)
+            {
+               ensure(tree, keys);
+
+               // console.log("doc is undefined, options: ", options);
+               //
+               // if(options.force)
+               // {
+               //    obj=isNaN(keys[t]) ? {} : [];
+               // }
+               //
+               // console.log("obj: ", obj);
+            }
+
             if (isArray(obj))
             {
                var index = parseInt(keys[t], 10);

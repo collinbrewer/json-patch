@@ -1,0 +1,15 @@
+{
+  "name": "json-patch",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://collinbrewer@bitbucket.org/collinbrewer/json-patch.git"
+  },
+  "author": "Collin Brewer <collin@brewer-collective.com>",
+  "license": "MIT"
+}

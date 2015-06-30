@@ -1,7 +1,7 @@
 {
   "name": "json-patch",
   "version": "0.0.1",
-  "description": "",
+  "description": "A utility for working with RFC 6902 patches, and a bit more.",
   "main": "index.js",
   "scripts": {
     "test": "mocha spec"

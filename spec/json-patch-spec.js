@@ -1,54 +1,6 @@
 var should=require("chai").should();
-// var expect=require("chai").expect;
 
-var MochiComparators={
-   "==" : "equal to",
-   "===" : "exactly equal to",
-   "!=" : "not equal to",
-   "!==" : "exactly not equal to",
-   ">" : "greater than",
-   ">=" : "greater than or equal",
-   "<" : "less than",
-   "<=" : "less than or equal ",
-   "in" : "in"
-};
-
-function mochi(title, a, comparator, b)
-{
-   /* jshint evil:true */
-   if(arguments.length===1)
-   {
-      it(title);
-   }
-   else
-   {
-      if(typeof(a)==="function")
-      {
-         it(title + ": function return should " + MochiComparators[comparator] + " " + b, function(){ a=a(); eval("if(!(a " + comparator + " b)) throw new Error(a + ' is not ' + MochiComparators[comparator] + ' ' + b);"); });
-      }
-      else
-      {
-         it(title + ": " + a + " should be " + MochiComparators[comparator] + " " + b, function(){ eval("if(!(a " + comparator + " b)) throw new Error(a + ' is not ' + MochiComparators[comparator] + ' ' + b);"); });
-      }
-   }
-}
-
-mochi.assert=function(title, a, comparator, b){
-
-   a=typeof(a)==="string" ? ("'" + a + "'") : a;
-   b=typeof(b)==="string" ? ("'" + b + "'") : b;
-
-   if(!eval(a + comparator + b))
-   {
-      throw new Error(a + ' is not ' + MochiComparators[comparator] + ' ' + b);
-   }
-};
-
-
-var JSONMapping=require("../../json-mapping/index.js");
 var JSONPatch=require("../index.js");
-
-global.JSONMapping=JSONMapping;
 
 describe("#patch", function(){
 
@@ -60,33 +12,31 @@ describe("#patch", function(){
       // add
       v=["foo", "bar"];
       JSONPatch.apply([{"op":"add", "path":"/a/b/c", "value":v}], o);
-
-      mochi("add", o.a.b.c, "===", v);
+      o.a.b.c.should.equal(v);
 
       // remove
       JSONPatch.apply([{ "op": "remove", "path": "/a/b/c" }], o);
-
-      mochi("remove", o.a.b.c, "===", undefined);
+      should.not.exist(o.a.b.c);
 
       // replace
       v=42;
       JSONPatch.apply([{ "op": "replace", "path": "/a/b/c", "value":v}], o);
-      mochi("replace", o.a.b.c, "===", v);
+      o.a.b.c.should.equal(v);
 
       // move
       JSONPatch.apply([{ "op": "move", "from": "/a/b/c", "path": "/a/b/d" }], o);
-      mochi("move from", o.a.b.c, "===", undefined);
-      mochi("move to", o.a.b.d, "===", v);
+      should.not.exist(o.a.b.c);
+      o.a.b.d.should.equal(v);
 
       // copy
       o.a.b.c="bar";
       JSONPatch.apply([{ "op": "copy", "from": "/a/b/c", "path": "/a/b/e" }], o);
-      mochi("copy", o.a.b.c, "===", o.a.b.e);
+      o.a.b.c.should.equal(o.a.b.e);
 
       // test
       o.a.b.c="foo";
-      mochi("test", JSONPatch.apply([{ "op": "test", "path": "/a/b/c", "value": "foo" }], o), "===", true);
-      mochi("test", JSONPatch.apply([{ "op": "test", "path": "/a/b/c", "value": "bar" }], o), "===", false);
+      JSONPatch.apply([{ "op": "test", "path": "/a/b/c", "value": "foo" }], o).should.equal(true);
+      JSONPatch.apply([{ "op": "test", "path": "/a/b/c", "value": "bar" }], o).should.equal(false);
    });
 
    describe("arrays", function(){
@@ -97,32 +47,32 @@ describe("#patch", function(){
       o={ "foo": [ "bar", "baz" ] };
       JSONPatch.apply([{ "op": "add", "path": "/foo/1", "value": "qux" }], o);
 
-      mochi("add", o.foo[1], "===", "qux");
+      o.foo[1].should.equal("qux");
 
       // remove
       o={ "foo": [ "bar", "qux", "baz" ] };
       JSONPatch.apply([{ "op": "remove", "path": "/foo/1" }], o);
-      mochi("remove", o.foo[1], "===", "baz");
+      o.foo[1].should.equal("baz");
 
       // replace
       o={ "foo": [ "bar", "qux", "baz" ] };
       JSONPatch.apply([{ "op": "replace", "path": "/foo/1", "value":"goo" }], o);
-      mochi("replace", o.foo[1], "===", "goo");
+      o.foo[1].should.equal("goo");
 
       // move
       o={ "foo": [ "all", "grass", "cows", "eat" ] };
       JSONPatch.apply([{ "op": "move", "from": "/foo/1", "path": "/foo/3" }], o);
-      mochi("remove", o.foo[3], "===", "grass");
+      o.foo[3].should.equal("grass");
 
       // copy
       o={ "foo": [ "bar", "qux", "baz" ] };
       JSONPatch.apply([{ "op": "copy", "from": "/foo/1", "path": "/foo/1" }], o);
 
-      mochi("copy", o.foo[2], "===", "qux");
+      o.foo[2].should.equal("qux");
 
       // test
       o={"baz": "qux", "foo": [ "a", 2, "c" ]};
-      mochi("test", JSONPatch.apply([{ "op": "test", "path": "/baz", "value": "qux" }, { "op": "test", "path": "/foo/1", "value": 2 }], o), "===", true);
+      JSONPatch.apply([{ "op": "test", "path": "/baz", "value": "qux" }, { "op": "test", "path": "/foo/1", "value": 2 }], o).should.equal(true);
    });
 
    describe("forced patching", function(){
@@ -208,25 +158,36 @@ describe("Reversing", function(){
    var patch=[
       {"op":"add", "path":"/foo/bar", "value":{}},                // {foo:{bar:{}}}
       {"op":"replace", "path":"/foo/bar/qux", "value":"asdf"},    // {foo:{bar:{qux:"asdf"}}}
-      {"op":"copy", "from":"/foo/bar/qux", "path":"foo/bar/mux"}, // {foo:{bar:{qux:"asdf", mux:"asdf"}}}
+      // {"op":"copy", "from":"/foo/bar/qux", "path":"foo/bar/mux"}, // {foo:{bar:{qux:"asdf", mux:"asdf"}}}
       // {"op":"add", "path":"/foo/baz", "value":{}},                // {foo:{bar:{qux:"asdf", mux:"asdf"}, baz:{}}}
       // {"op":"replace", "path":"/foo/baz", "value":"goo"},         // {foo:{bar:{qux:"asdf", mux:"asdf"}, baz:"goo"}}
       // {"op":"replace", "path":"/foo/baz", "value":"roo"},         // {foo:{bar:{qux:"asdf", mux:"asdf"}, baz:"roo"}}
       // {"op":"move", "from":"/foo/baz", "path":"/foo/roo"},        // {foo:{bar:{qux:"asdf", mux:"asdf"}, roo:"roo"}}
-      // {"op":"remove", "path":"/foo/bar", "value":{}},             // {foo:{roo:"roo"}}
+      {"op":"remove", "path":"/foo/bar", "value":{}},             // {foo:{roo:"roo"}}
    ];
 
    it("should return a remove operation", function(){
-      mochi.assert("operation", JSONPatch.getReverseOperation({"op":"add", "path":"/foo/bar", "value":{}}).op, "===", "remove");
+      var reverse=JSONPatch.getReverseOperation({"op":"add", "path":"/foo/bar", "value":{}})
+      reverse.op.should.equal("remove");
    });
 
    it("should return an add operation", function(){
-      mochi.assert("operation", JSONPatch.getReverseOperation({"op":"remove", "path":"/foo/bar"}).op, "===", "add");
+      var reverse=JSONPatch.getReverseOperation({"op":"remove", "path":"/foo/bar"});
+      reverse.op.should.equal("add");
    });
 
    it("should return a replace operation", function(){
-      mochi.assert("operation", JSONPatch.getReverseOperation({"op":"replace", "path":"/foo/bar", "value":"qux"}).op, "===", "replace");
+      var reverse=JSONPatch.getReverseOperation({"op":"replace", "path":"/foo/bar", "value":"qux"});
+      reverse.op.should.equal("replace");
    });
+
+   it("should return a reverse patch"/*, function(){
+      var reverse=JSONPatch.reverse(patch);
+
+      reverse.should.be.an("array");
+      reverse[0].should.have.property("op");
+      reverse[0].op.should.equal("add");
+   }*/);
 });
 
 
@@ -292,19 +253,15 @@ describe("Mapping", function(){
 
    var mapped=JSONPatch.translateToMapping(mergePatch, mapping);
 
-   mochi("ID key", ("ID" in mapped.Todo[0]), "===", true);
-
-   mochi("id dne", ("id" in mapped.Todo[0]), "===", false);
-
-   mochi("ID value", mapped.Todo[0].ID, "===", 1);
+   mapped.Todo[0].should.have.property("ID");
+   mapped.Todo[0].should.not.have.property("id");
+   mapped.Todo[0].ID.should.equal(1);
 
    var unmapped=JSONPatch.translateFromMapping(mapped, mapping);
 
-   mochi("ID key", ("ID" in unmapped.Todo[0]), "!==", true);
-
-   mochi("id dne", ("id" in unmapped.Todo[0]), "!==", false);
-
-   mochi("ID value", unmapped.Todo[0].ID, "!==", 1);
+   unmapped.Todo[0].should.not.have.property("ID");
+   unmapped.Todo[0].should.have.property("id");
+   unmapped.Todo[0].id.should.equal(1);
 });
 
 

@@ -1,5 +1,7 @@
 (function(){
 
+   var JSONMapping=require("json-mapping");
+
    var JSONPatch={};
 
    // Utility
@@ -313,9 +315,9 @@
 
       var reversed=[];
 
-      for(var i=patch.length-1, operation, path, op; (operation=patch[i]); i--)
+      for(var i=patch.length-1, operation; (operation=patch[i]); i--)
       {
-         reversed.push(JSONPatch.inverseOperation(operation));
+         reversed.push(JSONPatch.getReverseOperation(operation));
       }
 
       return reversed;

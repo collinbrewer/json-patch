@@ -1,6 +1,6 @@
 {
   "name": "json-patch",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A utility for working with RFC 6902 patches, and a bit more.",
   "main": "index.js",
   "scripts": {
@@ -11,5 +11,8 @@
     "url": "https://collinbrewer@bitbucket.org/collinbrewer/json-patch.git"
   },
   "author": "Collin Brewer <collin@brewer-collective.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "json-mapping": "git+https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git"
+  }
 }

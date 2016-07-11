@@ -11,8 +11,12 @@
     "url": "https://collinbrewer@bitbucket.org/collinbrewer/json-patch.git"
   },
   "author": "Collin Brewer <collin@brewer-collective.com>",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
-    "json-mapping": "git+https://collinbrewer@bitbucket.org/collinbrewer/json-mapping.git"
+    "json-mapping": "github:collinbrewer/json-mapping"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   }
 }
